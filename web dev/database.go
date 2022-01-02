@@ -32,7 +32,8 @@ func main() {
             );`
 
         if _, err := db.Exec(query); err != nil {
-            log.Fatal(err)
+            //log.Fatal("one",err)
+            log.Print("one ",err,"\n\n")
         }
     }
 
@@ -43,7 +44,7 @@ func main() {
 
         result, err := db.Exec(`INSERT INTO users (username, password, created_at) VALUES (?, ?, ?)`, username, password, createdAt)
         if err != nil {
-            log.Fatal(err)
+            log.Print("two ",err,"\n\n")
         }
 
         id, err := result.LastInsertId()
@@ -60,7 +61,7 @@ func main() {
 
         query := "SELECT id, username, password, created_at FROM users WHERE id = ?"
         if err := db.QueryRow(query, 1).Scan(&id, &username, &password, &createdAt); err != nil {
-            log.Fatal(err)
+            log.Print("three ",err,"\n\n")
         }
 
         fmt.Println(id, username, password, createdAt)
@@ -95,6 +96,8 @@ func main() {
         }
 
         fmt.Printf("%#v", users)
+        fmt.Printf("\n\n")
+        fmt.Printf("%+v", users)
     }
 
     {
