@@ -25,6 +25,17 @@ func main() {
 	log.Print("This is a log statement")
 	// If no error was returned, print the returned message to the console
 	fmt.Println(message)
+
+	// A slice of names.
+	names := []string{"Waqas", "Altaf", "Taslim"}
+	// Request greeting messages for the names.
+	messages, err := greetings.Hellos(names)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// If no error was returned, print the returned map of
+	// messages to the console.
+	fmt.Println(messages)
 }
 
 //go mod edit -replace example.com/greetings=../greetings
