@@ -10,10 +10,12 @@ import (
 func main() {
 
 	// Set properties of the predefined Logger, including
-	// the log entry prefix and a flag to disable printing
-	// the time, source file, and line number.
-	log.SetPrefix("greetings: ")
-	log.SetFlags(log.LUTC | log.Ldate)
+    // the log entry prefix and a flag to disable printing
+    // the time, source file, and line number.
+    log.SetPrefix(" greetings: ")
+	//log.SetPrefix(log.Ldate)
+    log.SetFlags(log.Ldate | log.Ltime | log.Llongfile | log.LUTC)
+	//log.SetFlags(0 )
 
 	// Get a greeting message and print it.
 	message, err := greetings.Hello("Waqas")
