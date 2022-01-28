@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 func main() {
 	csvFile := flag.String("csv", "problems.csv", "A csv file in format: question,answer")
+	timeLimit := flag.Int("time_limit", 5, "This is the time lint for the quiz in seconds")
 	flag.Parse()
 
 	file, err := os.Open(*csvFile)
@@ -26,22 +28,32 @@ func main() {
 	}
 
 	problems := parseLines(lines)
-	runGame(problems)
+
+	runGame(problems, *timeLimit)
 }
 
 // Takes a struct containing problems and answers and runs the game
-func runGame(problems []problem) (error){
+func runGame(problems []problem, timeLimit int) error {
 	correct_ans_count := 0
+	timer := time.NewTimer(time.Duration(timeLimit) * time.Second)
 
 	for i, problem := range problems {
-		fmt.Printf("Problem #%d: %s = \n", i+1, problem.q)
-		var answer string
-		fmt.Scanf("%s\n", &answer)
+		select {
+		case <-timer.C:
+			fmt.Printf("You got %d out of %d questions Correct.\n", correct_ans_count, len(problems))
+			return nil
+		default:
+			fmt.Printf("Problem #%d: %s = \n", i+1, problem.q)
+			var answer string
+			fmt.Scanf("%s\n", &answer)
 
-		if answer == problem.a {
-			fmt.Printf("Correct\n")
-			correct_ans_count++
+			if answer == problem.a {
+				fmt.Printf("Correct\n")
+				correct_ans_count++
+			}
+
 		}
+
 	}
 	fmt.Printf("You got %d out of %d questions Correct.\n", correct_ans_count, len(problems))
 	return nil
