@@ -38,15 +38,20 @@ func runGame(problems []problem, timeLimit int) error {
 	timer := time.NewTimer(time.Duration(timeLimit) * time.Second)
 
 	for i, problem := range problems {
+		fmt.Printf("Problem #%d: %s = \n", i+1, problem.q)
+		answerCh := make(chan string)
+
+		go func() {
+			var answer string
+			fmt.Scanf("%s\n", &answer)
+			answerCh <- answer
+		}()
+
 		select {
 		case <-timer.C:
 			fmt.Printf("You got %d out of %d questions Correct.\n", correct_ans_count, len(problems))
 			return nil
-		default:
-			fmt.Printf("Problem #%d: %s = \n", i+1, problem.q)
-			var answer string
-			fmt.Scanf("%s\n", &answer)
-
+		case answer := <-answerCh:
 			if answer == problem.a {
 				fmt.Printf("Correct\n")
 				correct_ans_count++
