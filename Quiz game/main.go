@@ -35,13 +35,13 @@ func main() {
 // Takes a struct containing problems and answers and runs the game
 func runGame(problems []problem, timeLimit int) error {
 	correct_ans_count := 0
+	wrong_ans_count := 0
 	timer := time.NewTimer(time.Duration(timeLimit) * time.Second)
 
 	for i, problem := range problems {
-		fmt.Printf("Problem #%d: %s = \n", i+1, problem.q)
 		answerCh := make(chan string)
-
 		go func() {
+			fmt.Printf("Problem #%d: %s = \n", i+1, problem.q)
 			var answer string
 			fmt.Scanf("%s\n", &answer)
 			answerCh <- answer
@@ -49,18 +49,19 @@ func runGame(problems []problem, timeLimit int) error {
 
 		select {
 		case <-timer.C:
-			fmt.Printf("You got %d out of %d questions Correct.\n", correct_ans_count, len(problems))
+			fmt.Printf("\n\nCorrect answers: %d\nIncorrect answers: %d\nQuestions not attempted: %d\nTotal questions: %d\n", correct_ans_count, wrong_ans_count, len(problems)-correct_ans_count-wrong_ans_count, len(problems))
 			return nil
-		case answer := <-answerCh:
+		case answer := <- answerCh:
 			if answer == problem.a {
-				fmt.Printf("Correct\n")
+				fmt.Printf("Correct Answer :-)\n\n")
 				correct_ans_count++
+			} else {
+				fmt.Printf("Wrong Answer :-(\n\n")
+				wrong_ans_count++
 			}
-
 		}
-
 	}
-	fmt.Printf("You got %d out of %d questions Correct.\n", correct_ans_count, len(problems))
+	fmt.Printf("\n\nCorrect answers: %d\nIncorrect answers: %d\nQuestions not attempted: %d\nTotal questions: %d\n", correct_ans_count, wrong_ans_count, len(problems)-correct_ans_count-wrong_ans_count, len(problems))
 	return nil
 }
 
