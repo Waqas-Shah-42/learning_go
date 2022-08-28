@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 var Host_address string
@@ -74,58 +75,65 @@ func get_torrent_info() []torrent_info {
 }
 
 func search_torrents(search string) {
-	url := fmt.Sprintf("%v/api/v2/search/start?pattern=%v&plugins=all&category=all",Host_address,search)
+	url := fmt.Sprintf("%v/api/v2/search/start?pattern=%v&plugins=all&category=all", Host_address, search)
 	method := "GET"
-	client := &http.Client {}
+	client := &http.Client{}
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		fmt.Println(err)
 		return
-	  }
+	}
 
-	  req.Header.Add("Cookie", "SID=3aRrI2rKhoQ+1jNLF9eYY3myNvXzx6nl")
-	  res, err := client.Do(req)
-	  if err != nil {
+	req.Header.Add("Cookie", "SID=3aRrI2rKhoQ+1jNLF9eYY3myNvXzx6nl")
+	res, err := client.Do(req)
+	if err != nil {
 		fmt.Println(err)
 		return
-	  }
-	  defer res.Body.Close()
+	}
+	defer res.Body.Close()
 
-	  body, err := io.ReadAll(res.Body)
-	  if err != nil {
-		fmt.Println(err)
-		return
-	  }
-	  fmt.Println(string(body))
-	  var search_id search_id
-	  err = json.NewDecoder(res.Body).Decode(&search_id)
+	var search_id search_id
+	err = json.NewDecoder(res.Body).Decode(&search_id)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-
 	///  CHECKING STATUS
-	  url = fmt.Sprintf("%v/api/v2/search/status?id=%v", Host_address,search_id.Id)
-	  fmt.Printf("############ URL : %v\n\n", url)
-	  req, err = http.NewRequest(method, url, nil)
-	  if err != nil {
-		fmt.Println(err)
-		return
-	  }
+	var search_status []search_status
+	//search_status.Status = "Running"
 
-	  req.Header.Add("Cookie", "SID=3aRrI2rKhoQ+1jNLF9eYY3myNvXzx6nl")
-	  res, err = client.Do(req)
-	  if err != nil {
+	url = fmt.Sprintf("%v/api/v2/search/status?id=%v", Host_address, search_id.Id)
+	req, err = http.NewRequest(method, url, nil)
+	if err != nil {
 		fmt.Println(err)
 		return
-	  }
-	  defer res.Body.Close()
-	  body, err = io.ReadAll(res.Body)
-	  if err != nil {
-		fmt.Println(err)
-		return
-	  }
-	  fmt.Println(string(body))
+	}
+
+	req.Header.Add("Cookie", "SID=3aRrI2rKhoQ+1jNLF9eYY3myNvXzx6nl")
+	fmt.Printf("%v",url)
+
+	//for search_status.Status == "Running" {
+	for {
+
+		res, err = client.Do(req)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer res.Body.Close()
+
+		err = json.NewDecoder(res.Body).Decode(&search_status)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("\n\n\n\n%+v", search_status)
+		if search_status[0].Status != "Running" {
+			break
+		}else{
+			time.Sleep(8 * time.Second)
+		}
+	}
 
 }
 
@@ -196,6 +204,12 @@ type search_id struct {
 	Id int `json:"id"`
 }
 
+type search_status struct {
+	Id     json.Number    `json:"id"`
+	Status string `json:"status"`
+	Total  json.Number    `json:"total"`
+}
+
 func main() {
 	configFile, err := os.ReadFile("config.json")
 	// if we os.Open returns an error then handle it
@@ -214,12 +228,12 @@ func main() {
 	Host_address = config.Host_ip + ":" + config.Host_port
 	fmt.Printf("The Host Ip address is: %v\n\n", Host_address)
 
-	fmt.Printf("Application version:\t%v\n", get_app_version())
-	fmt.Printf("Web api version:\t%v\n", get_webapiVersion())
-	fmt.Printf("BuildInfo:\t%v\n", get_buildInfo())
-	fmt.Print("\n######## Torrent information\n")
+	// fmt.Printf("Application version:\t%v\n", get_app_version())
+	// fmt.Printf("Web api version:\t%v\n", get_webapiVersion())
+	// fmt.Printf("BuildInfo:\t%v\n", get_buildInfo())
+	// fmt.Print("\n######## Torrent information\n")
 
-	get_torrent_info()
+	// get_torrent_info()
 
 	search_torrents("Ubuntu%2022.04%")
 }
