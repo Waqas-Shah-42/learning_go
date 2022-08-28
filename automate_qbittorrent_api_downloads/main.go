@@ -97,6 +97,35 @@ func search_torrents(search string) {
 		return
 	  }
 	  fmt.Println(string(body))
+	  var search_id search_id
+	  err = json.NewDecoder(res.Body).Decode(&search_id)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+
+	///  CHECKING STATUS
+	  url = fmt.Sprintf("%v/api/v2/search/status?id=%v", Host_address,search_id.Id)
+	  fmt.Printf("############ URL : %v\n\n", url)
+	  req, err = http.NewRequest(method, url, nil)
+	  if err != nil {
+		fmt.Println(err)
+		return
+	  }
+
+	  req.Header.Add("Cookie", "SID=3aRrI2rKhoQ+1jNLF9eYY3myNvXzx6nl")
+	  res, err = client.Do(req)
+	  if err != nil {
+		fmt.Println(err)
+		return
+	  }
+	  defer res.Body.Close()
+	  body, err = io.ReadAll(res.Body)
+	  if err != nil {
+		fmt.Println(err)
+		return
+	  }
+	  fmt.Println(string(body))
 
 }
 
@@ -163,6 +192,10 @@ type search_result struct {
 	SiteUrl    string      `json:"siteUrl"`
 }
 
+type search_id struct {
+	Id int `json:"id"`
+}
+
 func main() {
 	configFile, err := os.ReadFile("config.json")
 	// if we os.Open returns an error then handle it
@@ -188,5 +221,5 @@ func main() {
 
 	get_torrent_info()
 
-	search_torrents("House%20of%20Dragon")
+	search_torrents("Ubuntu%2022.04%")
 }
