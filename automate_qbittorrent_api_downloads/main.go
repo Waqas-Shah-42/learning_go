@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-var Host_address string //= `http://192.168.100.10:8080`
+var Host_address string
 
 func get_app_version() string {
    resp, err := http.Get(Host_address + "/api/v2/app/version")
@@ -58,22 +58,13 @@ func get_buildInfo() string {
 
 func get_torrent_info() []torrent_info {
 	resp, err := http.Get(Host_address + "/api/v2/torrents/info")
-	//json.Valid(resp.Body)
    if err != nil {
       log.Fatalln(err)
    }
-// //We Read the response body on the line below.
-//    body, err := io.ReadAll(resp.Body)
-//    if err != nil {
-//       log.Fatalln(err)
-//    }
-// //Convert the body to type string
-//    return string(body)
 	var torrents []torrent_info
 	defer resp.Body.Close()
 
 	err = json.NewDecoder(resp.Body).Decode(&torrents)
-	//json.Unmarshal(resp.Body,&torrents)
 	if err != nil {
 		log.Fatalln(err)
 	 }
@@ -163,7 +154,6 @@ type torrent_info struct {
    fmt.Printf("Web api version:\t%v\n",get_webapiVersion())
    fmt.Printf("BuildInfo:\t%v\n",get_buildInfo())
    fmt.Print("\n######## Torrent information\n")
-   //fmt.Printf("Torrent info:\t%v\n",get_torrent_info())
 
    get_torrent_info()
  }
